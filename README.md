@@ -9,3 +9,12 @@ Authors
 
  - Andrew R. Casey (Cambridge)
 
+
+Installation
+============
+
+Install using `pip`:
+
+````
+pip install gaia-on-tap
+````
