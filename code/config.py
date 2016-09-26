@@ -8,7 +8,7 @@ from collections import namedtuple
 
 Config = namedtuple("Config", ["url", "username", "password"])
 default = Config(
-    url="http://gea.esac.esa.int/tap-server", 
+    url="https://gea.esac.esa.int/tap-server", 
     username=None, password=None)
 config = default
 
@@ -24,6 +24,10 @@ def read(config_path):
     with open(config_path, "r") as fp:
         contents = yaml.load(fp)
 
+    kwds = {}
+    kwds.update(default._asdict())
+    kwds.update(contents)
+
     global config
-    config = Config(**contents)
+    config = Config(**kwds)
     return None

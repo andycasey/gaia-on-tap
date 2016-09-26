@@ -8,6 +8,9 @@ from astropy.table import Table
 
 from ..config import config
 
+# TAP PATHS
+_LOGIN_PATH = "{}/login"
+_SYNC_QUERY_PATH = "{}/tap/sync"
 
 
 # TODO: get all tables
@@ -23,7 +26,7 @@ class TAPQueryException:
     pass
 
 
-def query(query, return_table=True, **kwargs):
+def query(query, return_table=True, authenticate=False, **kwargs):
     """
     Execute a synchronous TAP query to the ESA Gaia database.
 
@@ -39,6 +42,11 @@ def query(query, return_table=True, **kwargs):
         `return_table` keyword will be ignored and the `requests.response` 
         object will be returned.
 
+    :param authenticate: [optional]
+        Authenticate with the username and password information stored in the
+        config.
+
+
     :returns:
         An `astropy.Table` if `return_table` is True and the `FORMAT` keyword
         argument is `None` or 'votable'. Otherwise, a `requests.response` is
@@ -48,7 +56,14 @@ def query(query, return_table=True, **kwargs):
     params = dict(REQUEST="doQuery", LANG="ADQL", FORMAT="votable", query=query)
     params.update(kwargs)
     
-    response = requests.get("{}/tap/sync".format(config.url), params=params)
+    # Create session.
+    s = requests.Session()
+
+    if authenticate:
+        s.post(_LOGIN_PATH.format(config.url),
+            data=dict(username=config.username, password=config.password))
+
+    response = s.get(_SYNC_QUERY_PATH.format(config.url), params=params)
 
     if not response.ok:
         raise TAPQueryException("response code {}".format(response.status_code))
@@ -69,3 +84,6 @@ def query(query, return_table=True, **kwargs):
 
     else:
         return response
+
+
+
