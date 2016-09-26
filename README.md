@@ -22,7 +22,7 @@ pip install gaia-on-tap
 Resources
 =========
 
-- [ESA Gaia TAP documentation](https://gea.esac.esa.int/archive/)
+- [ESA Gaia TAP documentation](https://gea.esac.esa.int/archive/) -> Help -> Command-line access
 
 - [Gaia ADQL cookbook](https://gaia.ac.uk/science/gaia-data-release-1/adql-cookbook)
 

@@ -96,7 +96,7 @@ def cone_search(ra, dec, radius, table="gaiadr1.gaia_source", **kwargs):
         FROM {table} 
         WHERE CONTAINS(
             POINT('ICRS',{table}.ra,{table}.dec),
-            CIRCLE('ICRS',{ra},{dec},{radius})) = 1;""".format(
+            CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1;""".format(
             table=table, ra=ra, dec=dec, radius=radius), **kwargs)
 
 
