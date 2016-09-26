@@ -58,6 +58,30 @@ hvs_candidates = gaia.tap.query(
           AND   (4.74 * SQRT(POWER(pmra, 2) + POWER(pmdec, 2)))/parallax > 500 """)
 ````
 
+
+Authenticate using your ESA/Gaia credentials
+--------------------------------------------
+
+If you have an account with the ESA/Gaia archive, you can include your credentials so that
+you can upload or query private tables. This is done by having a file (e.g., `credentials.yaml`)
+like:
+
+````
+username: acasey
+password: my-super-awesome-password
+````
+
+And then in the code:
+````python
+
+import gaia
+
+# Read in our credentials. You only have to do this once!
+gaia.config.read("credentials.yaml")
+
+# For any further queries use the authenticate flag, and the code will log you in automagically
+sources = gaia.tap.query(" ... ", authenticate=True)
+````
 Resources
 =========
 
