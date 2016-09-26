@@ -1,9 +1,32 @@
 
+""" General utility functions for accessing Gaia data using TAP """
+
+__all__ = ["login", "logout", "get_tables"]
+
+
 import requests
 from ..config import config
 
 
+class TAPQueryException(Exception):
 
+    def __init__(self, response, message=None):
+
+        # Try parsing out an error message.
+        if message is None:
+            try:
+                message = response.text\
+                    .split('<INFO name="QUERY_STATUS" value="ERROR">')[1]\
+                    .split('</INFO>')[0].strip()
+
+            except:
+                message = "{} code returned".format(response.status_code)
+
+        super(TAPQueryException, self).__init__(message)
+
+        self.errors = response
+        return None
+    
 
 def login(session=None):
     """
@@ -14,8 +37,10 @@ def login(session=None):
     """
 
     session = session or requests.Session()
-    session.post("{}/login".format(config.url),
+    r = session.post("{}/login".format(config.url),
         data=dict(username=config.username, password=config.password))
+    if not r.ok:
+        raise TAPQueryException(r, "authorization denied")
     return session
 
 
@@ -28,7 +53,6 @@ def logout(session):
     """
     session.post("{}/logout".format(config.url))
     return None
-
 
 
 def get_tables(authenticate=False):
@@ -46,4 +70,3 @@ def get_tables(authenticate=False):
     # FUCK me they give me XML what the fuck?
     response = session.get("{}/tap/tables".format(config.url))
     return response.text
-

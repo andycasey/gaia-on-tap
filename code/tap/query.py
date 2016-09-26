@@ -1,6 +1,8 @@
 
 """ Query Gaia using TAP """
 
+__all__ = ["query", "cone_search"]
+
 import requests
 import os
 from tempfile import mkstemp
@@ -9,35 +11,6 @@ from astropy.table import Table
 from . import utils
 from ..config import config
 
-
-# TODO: get all tables
-# TODO: async requests
-# TODO: login right as part of queries
-
-# TODO: upload a table 
-# TODO: delete table
-
-# TODO: query on an -on-the-fly uploaded table
-
-class TAPQueryException(Exception):
-
-    def __init__(self, response):
-
-        # Try parsing out an error message.
-        try:
-            message = response.text\
-                .split('<INFO name="QUERY_STATUS" value="ERROR">')[1]\
-                .split('</INFO>')[0].strip()
-
-        except:
-            message = "{} code returned".format(response.status_code)
-
-        super(TAPQueryException, self).__init__(message)
-
-        self.errors = response
-        return None
-        
-        # Get 
 
 def query(query, return_table=True, authenticate=False, **kwargs):
     """
@@ -76,7 +49,7 @@ def query(query, return_table=True, authenticate=False, **kwargs):
     response = session.get("{}/tap/sync".format(config.url), params=params)
 
     if not response.ok:
-        raise TAPQueryException(response)
+        raise utils.TAPQueryException(response)
 
     if return_table and params["FORMAT"] == "votable":
         # Take the table contents and return an astropy table.
