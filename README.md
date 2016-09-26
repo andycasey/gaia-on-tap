@@ -29,7 +29,7 @@ write the results to disk or do something useful with them.
 Select stars around M67
 -----------------------
 
-````
+````python
 # Get all sources within 1 degree of M67
 
 import astropy.coordinates as coord
@@ -47,7 +47,7 @@ Select hypervelocity star candidates in TGAS
 
 This doesn't treat the errors correctly, but it's a useful example to show what you can do:
 
-````
+````python
 import gaia.tap
 
 # Identify stars with tangential velocities exceeding 500 km/s, and reasonable parallaxes
