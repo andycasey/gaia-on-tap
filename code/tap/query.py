@@ -6,11 +6,8 @@ import os
 from tempfile import mkstemp
 from astropy.table import Table
 
+from . import utils
 from ..config import config
-
-# TAP PATHS
-_LOGIN_PATH = "{}/login"
-_SYNC_QUERY_PATH = "{}/tap/sync"
 
 
 # TODO: get all tables
@@ -22,9 +19,25 @@ _SYNC_QUERY_PATH = "{}/tap/sync"
 
 # TODO: query on an -on-the-fly uploaded table
 
-class TAPQueryException:
-    pass
+class TAPQueryException(Exception):
 
+    def __init__(self, response):
+
+        # Try parsing out an error message.
+        try:
+            message = response.text\
+                .split('<INFO name="QUERY_STATUS" value="ERROR">')[1]\
+                .split('</INFO>')[0].strip()
+
+        except:
+            message = "{} code returned".format(response.status_code)
+
+        super(TAPQueryException, self).__init__(message)
+
+        self.errors = response
+        return None
+        
+        # Get 
 
 def query(query, return_table=True, authenticate=False, **kwargs):
     """
@@ -57,16 +70,13 @@ def query(query, return_table=True, authenticate=False, **kwargs):
     params.update(kwargs)
     
     # Create session.
-    s = requests.Session()
-
+    session = requests.Session()
     if authenticate:
-        s.post(_LOGIN_PATH.format(config.url),
-            data=dict(username=config.username, password=config.password))
-
-    response = s.get(_SYNC_QUERY_PATH.format(config.url), params=params)
+        utils.login(session)
+    response = session.get("{}/tap/sync".format(config.url), params=params)
 
     if not response.ok:
-        raise TAPQueryException("response code {}".format(response.status_code))
+        raise TAPQueryException(response)
 
     if return_table and params["FORMAT"] == "votable":
         # Take the table contents and return an astropy table.
@@ -85,5 +95,35 @@ def query(query, return_table=True, authenticate=False, **kwargs):
     else:
         return response
 
+
+
+def cone_search(ra, dec, radius, table="gaiadr1.gaia_source", **kwargs):
+    """
+    Perform a cone search against the ESA Gaia database using the TAP.
+
+    :param ra:
+        Right ascension (degrees).
+
+    :param dec:
+        Declination (degrees).
+
+    :param radius:
+        Cone search radius (degrees).
+
+    :param table: [optional]
+        The table name to perform the cone search on. Some examples are:
+
+        gaiadr1.gaia_source
+        gaiadr1.tgas_source
+
+    """
+
+    return query(
+        """ SELECT * 
+        FROM {table} 
+        WHERE CONTAINS(
+            POINT('ICRS',{table}.ra,{table}.dec),
+            CIRCLE('ICRS',{ra},{dec},{radius})) = 1;""".format(
+            table=table, ra=ra, dec=dec, radius=radius), **kwargs)
 
 
