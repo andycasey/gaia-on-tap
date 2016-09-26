@@ -94,3 +94,4 @@ Resources
 
 - [GAVO ADQL cheat sheet](http://docs.g-vo.org/adqlref/adqlref.pdf)
 
+- [Jo Bovy's `gaia_tools`](https://github.com/jobovy/gaia_tools)
