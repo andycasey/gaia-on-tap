@@ -36,8 +36,6 @@ setup(name="gaia-on-tap",
     url="http://www.github.com/andycasey/gaia-on-tap/",
     license="MIT",
     description="Utilities and tutorials for accessing Gaia data using TAP",
-    long_description=rf(os.path.join(os.path.dirname(__file__), "README.md")),
-    install_requires=rf(
-        os.path.join(os.path.dirname(__file__), "REQUIREMENTS.md")).split("\n"),
+    install_requires=["numpy", "scipy", "astropy", "requests"],
     entry_points={}
 )
