@@ -26,6 +26,7 @@ The `gaia.tap` package includes two main functions for accessing Gaia data: `que
 By default, both will return all retrieved sources as an `astropy.table.Table` object, so you can then
 write the results to disk or do something useful with them.
 
+
 Select stars around M67
 -----------------------
 
@@ -59,8 +60,8 @@ hvs_candidates = gaia.tap.query(
 ````
 
 
-Authenticate using your ESA/Gaia credentials
---------------------------------------------
+Authenticate using your ESA/Gaia Archive credentials
+----------------------------------------------------
 
 If you have an account with the ESA/Gaia archive, you can include your credentials so that
 you can upload or query private tables. This is done by having a file (e.g., `credentials.yaml`)
@@ -82,6 +83,8 @@ gaia.config.read("credentials.yaml")
 # For any further queries use the authenticate flag, and the code will log you in automagically
 sources = gaia.tap.query(" ... ", authenticate=True)
 ````
+
+
 Resources
 =========
 
