@@ -4,8 +4,6 @@
 __all__ = ["upload_table"]
 
 import requests
-from astropy.table import Table
-from StringIO import StringIO
 
 from . import utils
 from ..config import config
