@@ -4,42 +4,39 @@
 __all__ = ["query", "cone_search"]
 
 import requests
-import os
-from tempfile import mkstemp
 from astropy.table import Table
+from StringIO import StringIO
 
 from . import utils
 from ..config import config
 
 
-def query(query, return_table=True, authenticate=False, **kwargs):
+def query(query, authenticate=False, json=False, full_output=False, **kwargs):
     """
     Execute a synchronous TAP query to the ESA Gaia database.
 
     :param query:
         The TAP query to execute.
 
-    :param return_table: [optional]
-        Return the results as an `astropy.Table`. If set to False, then the
-        `requests.response` object will be returned. Keyword arguments are
-        passed directly to the `params` payload in `requests.get`.
-
-        If the `FORMAT` keyword is given and it is not 'votable', then the 
-        `return_table` keyword will be ignored and the `requests.response` 
-        object will be returned.
-
     :param authenticate: [optional]
         Authenticate with the username and password information stored in the
         config.
 
+    :param json: [optional]
+        Return the data in JSON format. If set to False, then the data will be
+        returned as an `astropy.table.Table`.
+
+    :param full_output: [optional]
+        Return a two-length tuple containing the data and the corresponding
+        `requests.response` object.
 
     :returns:
-        An `astropy.Table` if `return_table` is True and the `FORMAT` keyword
-        argument is `None` or 'votable'. Otherwise, a `requests.response` is
-        returned.
+        The data returned - either as an astropy table or a dictionary (JSON) -
+        and optionally, the `requests.response` object used.
     """
     
-    params = dict(REQUEST="doQuery", LANG="ADQL", FORMAT="votable", query=query)
+    format = "json" if json else "votable"
+    params = dict(REQUEST="doQuery", LANG="ADQL", FORMAT=format, query=query)
     params.update(kwargs)
     
     # Create session.
@@ -51,22 +48,14 @@ def query(query, return_table=True, authenticate=False, **kwargs):
     if not response.ok:
         raise utils.TAPQueryException(response)
 
-    if return_table and params["FORMAT"] == "votable":
-        # Take the table contents and return an astropy table.
-
-        # It would be nice if we could create astropy.table.Table objects from
-        # a votable string, but..
-        _, path = mkstemp()
-        with open(path, "w") as fp:
-            fp.write(response.text)
-
-        table = Table.read(path, format="votable")
-        os.unlink(path)
-
-        return table
+    if json:
+        data = response.json()
 
     else:
-        return response
+        # Take the table contents and return an astropy table.
+        data = Table.read(StringIO(response.text), format="votable")
+
+    return (data, response) if full_output else data
 
 
 
@@ -89,6 +78,13 @@ def cone_search(ra, dec, radius, table="gaiadr1.gaia_source", **kwargs):
         gaiadr1.gaia_source
         gaiadr1.tgas_source
 
+    :param kwargs:
+        Keyword arguments are passed directly to the `query` method.
+
+    :returns:
+        The data returned by the ESA/Gaia archive -- either as an astropy
+        table or as a dictionary -- and optionally, the `requests.response`
+        object used.
     """
 
     return query(
@@ -98,5 +94,3 @@ def cone_search(ra, dec, radius, table="gaiadr1.gaia_source", **kwargs):
             POINT('ICRS',{table}.ra,{table}.dec),
             CIRCLE('ICRS',{ra:.10f},{dec:.10f},{radius:.10f})) = 1;""".format(
             table=table, ra=ra, dec=dec, radius=radius), **kwargs)
-
-
