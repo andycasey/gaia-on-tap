@@ -109,8 +109,7 @@ xmatched_sources = tap.query(
                     POINT('ICRS', my_table.ra, my_table.dec),
                     CIRCLE('ICRS', gaia.ra, gaia.dec, 1.5/3600)
                 )
-                """,
-    authenticate=True)
+    """, authenticate=True)
 ````
 
 
