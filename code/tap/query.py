@@ -5,7 +5,12 @@ __all__ = ["query", "cone_search"]
 
 import requests
 from astropy.table import Table
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO
+
+except ImportError:
+    from io import StringIO
 
 from . import utils
 from .exceptions import TAPQueryException
