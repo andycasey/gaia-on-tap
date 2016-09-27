@@ -77,13 +77,41 @@ And then in the code:
 
 import gaia
 
-# Read in our credentials. You only have to do this once!
+# Read in our credentials. You only have to do this once per Python session!
 gaia.config.read("credentials.yaml")
 
 # For any further queries use the authenticate flag, and the code will log you in automagically
 sources = gaia.tap.query(" ... ", authenticate=True)
 ````
 
+
+Upload a table to your local space on the ESA/Gaia archive
+----------------------------------------------------------
+
+If you want to upload a VOtable and use it for cross-matches through the ESA/Gaia archive:
+
+````python
+import gaia
+
+# Read in our credentials. 
+gaia.config.read("credentials.yaml")
+
+# Upload our table, which we will ask ESA/Gaia to call 'my_table'
+gaia.tap.upload("my_table", "/local/path/to/your/table.votable")
+
+# Now use it!
+# (Ensure that you use the authenticate=True flag so that you can access your private tables)
+xmatched_sources = tap.query(
+    """ SELECT  *
+        FROM    gaiadr1.gaia_source as gaia,
+                <YOUR_USERNAME>.my_table as my_table
+        WHERE   1=CONTAINS(
+                    POINT('ICRS', my_table.ra, my_table.dec),
+                    CIRCLE('ICRS', gaia.ra, gaia.dec, 1.5/3600)
+                )
+                """,
+    authenticate=True)
+""""
 
 Resources
 =========
