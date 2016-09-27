@@ -5,28 +5,8 @@ __all__ = ["login", "logout", "get_tables"]
 
 
 import requests
-from ..config import config
+from .exceptions import TAPQueryException
 
-
-class TAPQueryException(Exception):
-
-    def __init__(self, response, message=None):
-
-        # Try parsing out an error message.
-        if message is None:
-            try:
-                message = response.text\
-                    .split('<INFO name="QUERY_STATUS" value="ERROR">')[1]\
-                    .split('</INFO>')[0].strip()
-
-            except:
-                message = "{} code returned".format(response.status_code)
-
-        super(TAPQueryException, self).__init__(message)
-
-        self.errors = response
-        return None
-    
 
 def login(session=None):
     """
@@ -36,11 +16,14 @@ def login(session=None):
         Optionally provide a session to use.
     """
 
+    from ..config import config
+
     session = session or requests.Session()
     r = session.post("{}/login".format(config.url),
         data=dict(username=config.username, password=config.password))
     if not r.ok:
-        raise TAPQueryException(r, "authorization denied")
+        raise TAPQueryException(
+            r, "authorization denied using username {}".format(config.username))
     return session
 
 
@@ -51,6 +34,9 @@ def logout(session):
     :param session:
         An authenticated session.
     """
+    
+    from ..config import config
+
     session.post("{}/logout".format(config.url))
     return None
 
@@ -62,6 +48,8 @@ def get_tables(authenticate=False):
     :param authenticate: [optional]
         Login to the ESA Gaia archive using your credentials.
     """
+
+    from ..config import config
 
     session = requests.Session()
     if authenticate:

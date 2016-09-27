@@ -8,6 +8,7 @@ from astropy.table import Table
 from StringIO import StringIO
 
 from . import utils
+from .exceptions import TAPQueryException
 from ..config import config
 
 
@@ -46,7 +47,7 @@ def query(query, authenticate=False, json=False, full_output=False, **kwargs):
     response = session.get("{}/tap/sync".format(config.url), params=params)
 
     if not response.ok:
-        raise utils.TAPQueryException(response)
+        raise TAPQueryException(response)
 
     if json:
         data = response.json()

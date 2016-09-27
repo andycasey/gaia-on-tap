@@ -5,6 +5,7 @@ __all__ = ["Config", "config", "default", "read"]
 import yaml
 from collections import namedtuple
 
+global config
 
 Config = namedtuple("Config", ["url", "username", "password"])
 default = Config(
