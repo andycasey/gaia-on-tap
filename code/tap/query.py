@@ -5,12 +5,7 @@ __all__ = ["query", "cone_search"]
 
 import requests
 from astropy.table import Table
-
-try:
-    from StringIO import StringIO
-
-except ImportError:
-    from io import StringIO
+from io import BytesIO
 
 from . import utils
 from .exceptions import TAPQueryException
@@ -59,10 +54,10 @@ def query(query, authenticate=False, json=False, full_output=False, **kwargs):
 
     else:
         # Take the table contents and return an astropy table.
-        data = Table.read(StringIO(response.text), format="votable")
+        data = Table.read(BytesIO(response.text.encode("utf-8")), 
+                         format="votable")
 
     return (data, response) if full_output else data
-
 
 
 def cone_search(ra, dec, radius, table="gaiadr1.gaia_source", **kwargs):

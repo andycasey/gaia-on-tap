@@ -1,6 +1,6 @@
 # coding: utf-8
 
-""" Gaia on TAP """ 
+""" Gaia on TAP """
 
 import os
 import re
@@ -30,7 +30,7 @@ version = version_regex.findall(contents)[0]
 setup(name="gaia-on-tap",
     version=version,
     author="Andrew R. Casey",
-    author_email="arc@ast.cam.ac.uk",
+    author_email="andrew.casey@monash.edu",
     packages=["gaia", "gaia.tap"],
     package_dir=dict(gaia="code"),
     url="http://www.github.com/andycasey/gaia-on-tap/",
