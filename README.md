@@ -7,7 +7,7 @@ Python utilities and examples for accessing ESA Gaia data using Table Access Pro
 Authors
 =======
 
- - Andrew R. Casey (Cambridge)
+ - Andrew R. Casey (Monash University)
 
 
 Installation
